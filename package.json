@@ -4,7 +4,7 @@
   "main": "src/handler.js",
   "license": "MIT",
   "scripts": {
-    "deploy:env": "sls deploy --stage $NODE_ENV",
+    "deploy:env": "sls deploy -v --stage $NODE_ENV",
     "deploy": "export NODE_ENV=dev && yarn deploy:env",
     "deploy:production": "export NODE_ENV=production && yarn deploy:env",
     "deploy:stage": "export NODE_ENV=stage && yarn deploy:env",
@@ -39,6 +39,7 @@
     "nodemon": "^1.18.9",
     "prettier": "^1.14.2",
     "serverless": "^1.32.0",
+    "serverless-dotenv-plugin": "^2.0.1",
     "serverless-offline": "^4.0.0",
     "serverless-webpack": "^5.2.0",
     "ts-jest": "^24.0.0",

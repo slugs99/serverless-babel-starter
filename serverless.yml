@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: service-name
+service: sls-test
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -23,31 +23,42 @@ provider:
   # If you want to change to a different AWS profile
   # from ~/.aws/credentials, you can do so here
   profile: default
-  # you can overwrite defaults here
-  #  stage: dev
-  #  region: us-east-1
+  region: '${env:AWS_REGION}'
 
 custom:
+  customDomain:
+    domainName: '${env:APIDomainParameter}' # Backend API domain name
+    basePath: 'api' # This will be prefixed to all routes in this module
+    stage: '${env:EnvironmentParameter}'
+    createRoute53Record: False
   webpackIncludeModules: true
   webpack:
     webpackConfig: ./webpack.config.js
-    packager: 'yarn'   # Packager that will be used to package your external modules
-
+    packager: 'yarn' # Packager that will be used to package your external modules
 
 # you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
+iamRoleStatements:
+  - Effect: 'Allow'
+    Action:
+      - 's3:ListBucket'
+    Resource:
+      {
+        'Fn::Join':
+          ['', ['arn:aws:s3:::', { 'Ref': 'ServerlessDeploymentBucket' }]],
+      }
+  - Effect: 'Allow'
+    Action:
+      - 's3:PutObject'
+    Resource:
+      Fn::Join:
+        - ''
+        - - 'arn:aws:s3:::'
+          - 'Ref': 'ServerlessDeploymentBucket'
+  - Effect: 'Allow'
+    Action:
+      - 'iam:CreateRole'
+    Resource:
+      - '*'
 
 # you can define service wide environment variables here
 #  environment:
@@ -69,20 +80,14 @@ functions:
       - http:
           path: hello-typescript
           method: get
-      # Ping every 5 minutes to avoid cold starts
-      - schedule:
-          rate: rate(5 minutes)
-          enabled: true
+          cors: true
   hello:
     handler: src/hello.default
     events:
       - http:
           path: hello
           method: get
-      # Ping every 5 minutes to avoid cold starts
-      - schedule:
-          rate: rate(5 minutes)
-          enabled: true
+          cors: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -115,4 +120,4 @@ functions:
 plugins:
   - serverless-webpack
   - serverless-offline
-
+  - serverless-dotenv-plugin
