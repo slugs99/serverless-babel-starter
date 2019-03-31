@@ -23,13 +23,13 @@ provider:
   # If you want to change to a different AWS profile
   # from ~/.aws/credentials, you can do so here
   profile: default
-  region: '${env:AWS_REGION}'
+  region: 'ap-northeast-1'
 
 custom:
   customDomain:
-    domainName: '${env:APIDomainParameter}' # Backend API domain name
+    domainName: 'sls-dev.wisdomson.com' # Backend API domain name
     basePath: 'api' # This will be prefixed to all routes in this module
-    stage: '${env:EnvironmentParameter}'
+    stage: 'production'
     createRoute53Record: False
   webpackIncludeModules: true
   webpack:
@@ -37,28 +37,28 @@ custom:
     packager: 'yarn' # Packager that will be used to package your external modules
 
 # you can add statements to the Lambda function's IAM Role here
-iamRoleStatements:
-  - Effect: 'Allow'
-    Action:
-      - 's3:ListBucket'
-    Resource:
-      {
-        'Fn::Join':
-          ['', ['arn:aws:s3:::', { 'Ref': 'ServerlessDeploymentBucket' }]],
-      }
-  - Effect: 'Allow'
-    Action:
-      - 's3:PutObject'
-    Resource:
-      Fn::Join:
-        - ''
-        - - 'arn:aws:s3:::'
-          - 'Ref': 'ServerlessDeploymentBucket'
-  - Effect: 'Allow'
-    Action:
-      - 'iam:CreateRole'
-    Resource:
-      - '*'
+# iamRoleStatements:
+#   - Effect: 'Allow'
+#     Action:
+#       - 's3:ListBucket'
+#     Resource:
+#       {
+#         'Fn::Join':
+#           ['', ['arn:aws:s3:::', { 'Ref': 'ServerlessDeploymentBucket' }]],
+#       }
+#   - Effect: 'Allow'
+#     Action:
+#       - 's3:PutObject'
+#     Resource:
+#       Fn::Join:
+#         - ''
+#         - - 'arn:aws:s3:::'
+#           - 'Ref': 'ServerlessDeploymentBucket'
+#   - Effect: 'Allow'
+#     Action:
+#       - 'iam:CreateRole'
+#     Resource:
+#       - '*'
 
 # you can define service wide environment variables here
 #  environment:
@@ -88,6 +88,18 @@ functions:
           path: hello
           method: get
           cors: true
+  emptyPost:
+    handler: src/handler.emptyPost
+    description: "${file(./package.json):version}"
+    events:
+      - http:
+          path: emptyPost
+          method: post
+          cors: true
+          request:
+            parameters:
+              headers:
+                authorization: true
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
